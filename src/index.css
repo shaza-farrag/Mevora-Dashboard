@@ -134,7 +134,7 @@
   --secondary: #06B6D4;
   --third: #1F2937;
   --fourth: #22D3EE;
-  --background: #020617;
+  --fifth: #020617;
 }
 
 @theme {
@@ -142,5 +142,5 @@
   --color-secondary: #06B6D4;
   --color-third: #1F2937;
   --color-fourth: #22D3EE;
-  --color-background: #020617;
+  --color-fifth: #020617;
 }
