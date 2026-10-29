@@ -4,10 +4,10 @@ import {
   Routes,
   Route,
   Navigate,
-  Outlet,
 } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
+import DashboardLayout from "../components/layout/DashboardLayout";
 
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
@@ -21,24 +21,24 @@ import Carts from "../pages/Carts";
 import Settings from "../pages/Settings";
 import Wishlist from "../pages/Wishlist";
 
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
+// import Navbar from "../components/Navbar";
+// import Sidebar from "../components/Sidebar";
 
-function DashboardLayout() {
-  return (
-    <div className="min-h-screen">
-      <Sidebar />
+// function DashboardLayout() {
+//   return (
+//     <div className="min-h-screen">
+//       <Sidebar />
 
-      <div className="min-h-screen">
-        <Navbar />
+//       <div className="min-h-screen">
+//         <Navbar />
 
-        <main className="p-6">
-          <Outlet />
-        </main>
-      </div>
-    </div>
-  );
-}
+//         <main className="p-6">
+//           <Outlet />
+//         </main>
+//       </div>
+//     </div>
+//   );
+// }
 
 function AppRouter() {
   return (

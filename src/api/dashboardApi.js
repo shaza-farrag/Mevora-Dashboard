@@ -1,8 +1,6 @@
+
 import Axios from "./axios";
 
-/**
- * Fetch raw dashboard stats from the server
- */
 export const getDashboardStats = async () => {
   const response = await Axios.get("/orders/admin/dashboard");
   return response.data;
