@@ -31,7 +31,7 @@ function Navbar({ onMenuClick }) {
         </button>
         <img src={logo} alt="Koda Store" className="h-12 w-auto rounded-md" />
         <div className="hidden sm:block leading-tight">
-          <h1 className="text-base font-bold text-slate-900 dark:text-white">Koda Dashboard</h1>
+          <h1 className="text-base font-bold text-slate-900 dark:text-white">Mevora Dashboard</h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">E-Commerce Admin Panel</p>
         </div>
       </div>

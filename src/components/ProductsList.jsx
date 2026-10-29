@@ -1,9 +1,16 @@
-import Swiper from './Swiper'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEdit, faEye, faSliders, faStar, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { Link } from 'react-router-dom'
 
-export default function ProductsList({products}) {
+import Swiper from "./Swiper";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEdit,
+  faEye,
+  faSliders,
+  faStar,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
+
+export default function ProductsList({ products }) {
   return (
     <div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-6 p-4 bg-[#F1F5F9] dark:bg-transparent">
@@ -15,12 +22,12 @@ export default function ProductsList({products}) {
       <div className="relative h-64 bg-slate-100 rounded-t-3xl dark:bg-slate-800">
         <Swiper images={product.images} name={product.name}/>
 
-        {product.featured && (
-          <div className="absolute z-3 left-4 top-4 flex items-center gap-1 bg-amber-400 rounded-full text-slate-900 font-bold text-sm px-3 py-1">
-            <FontAwesomeIcon icon={faStar} />
-            <span>Featured</span>
-          </div>
-        )}
+              {product.featured && (
+                <div className="absolute left-4 top-4 z-10 flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1 text-sm font-bold text-slate-900">
+                  <FontAwesomeIcon icon={faStar} />
+                  <span>Featured</span>
+                </div>
+              )}
 
         <span
           className={`absolute z-3 bottom-4 right-4 rounded-full shadow text-sm font-bold py-1.5 px-3 ${
@@ -36,10 +43,11 @@ export default function ProductsList({products}) {
       <div className="flex flex-col flex-1 p-5 gap-2">
         <h3 className="text-slate-900 font-bold text-lg dark:text-white">{product.name}</h3>
 
-        <p className="uppercase text-slate-400 text-xs font-medium tracking-wide">
-          {[product.category ,product.subcategory ,product.brand]
-            .join(" · ")}
-        </p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-zinc-500">
+                {[product.category, product.subcategory, product.brand]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
 
         <p className="text-sm my-2 text-slate-500 line-clamp-2 dark:text-slate-400">
           {product.shortDescription}

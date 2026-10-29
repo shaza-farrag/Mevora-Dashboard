@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { searchProducts } from  "@/api/productsApi"
+import { searchProducts } from "@/api/productsApi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faSliders } from "@fortawesome/free-solid-svg-icons";
 
@@ -7,29 +8,24 @@ export default function Search({ setProducts }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
-  const [isOpen, setisOpen] = useState(false)
-  const [active, setactive] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [active, setActive] = useState(false);
+
   async function handleSearch() {
     try {
       const params = {};
 
-      if (search !== "") {
-        params.search = search;
-      }
-      if (category !== "") {
-        params.category = category;
-      }
-      if (subcategory !== "") {
-        params.subcategory = subcategory;
-      }
+      if (search.trim() !== "") params.search = search;
+      if (category !== "") params.category = category;
+      if (subcategory.trim() !== "") params.subcategory = subcategory;
 
       const data = await searchProducts(params);
-
       setProducts(data.products);
     } catch (error) {
-      console.log(error);
+      console.error("Product search failed:", error);
+    }
   }
-}
+
   return (
     <div className="rounded-3xl border border-slate-100 bg-white/70 p-4 shadow-sm backdrop-blur my-6 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -39,6 +35,9 @@ export default function Search({ setProducts }) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
             placeholder="Search products..."
             className="w-full bg-transparent text-slate-700 outline-none placeholder:text-slate-400 focus:border-cyan-300 dark:text-white dark:placeholder-slate-500"
           />
@@ -50,10 +49,11 @@ export default function Search({ setProducts }) {
         </button>
 
         <button
+          type="button"
           onClick={handleSearch}
           className="flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-cyan-200 transition hover:bg-cyan-600 dark:shadow-none"
         >
-          <FontAwesomeIcon icon={faSearch}/>
+          <FontAwesomeIcon icon={faSearch} />
           Search
         </button>
       </div>
@@ -91,8 +91,7 @@ export default function Search({ setProducts }) {
             className="w-full rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder-slate-600 dark:focus:border-cyan-500/60 dark:focus:ring-cyan-500/10"
           />
         </div>
-      </div>
-}
+      )}
     </div>
   );
 }

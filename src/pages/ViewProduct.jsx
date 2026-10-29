@@ -1,10 +1,16 @@
-import { getProductById } from '@/api/productsApi'
-import Swiper from '@/components/Swiper'
-import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { faStar ,faEye, faTag, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
+import { getProductById } from "@/api/productsApi";
+import Swiper from "@/components/Swiper";
+import ViewProductSkeleton from "@/components/ViewProductSkeleton";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  faStar,
+  faEye,
+  faTag,
+  faArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ViewProduct() {
   const { id } = useParams();
@@ -13,37 +19,40 @@ function ViewProduct() {
   const [product, setProduct] = useState({});
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    let ignore = false;
+  
+useEffect(() => {
+  let ignore = false;
 
-    async function fetchProduct() {
-      setIsLoading(true);
+  async function fetchProduct() {
+    try {
+      const data = await getProductById(id);
 
-      try {
-        const data = await getProductById(id);
-
-        if (!ignore) {
-          setProduct(data.product);
-          setSelectedImage(0);
-        }
-      } catch (err) {
-        if (!ignore) {
-          console.error("Failed to fetch product:", err);
-        }
-      } finally {
-        if (!ignore) {
-          setIsLoading(false);
-        }
+      if (!ignore) {
+        setProduct(data.product);
+        setSelectedImage(0);
+        setError(false);
+      }
+    } catch (err) {
+      if (!ignore) {
+        console.error("Failed to fetch product:", err);
+        setError(true);
+      }
+    } finally {
+      if (!ignore) {
+        setIsLoading(false);
       }
     }
+  }
 
-    fetchProduct();
+  fetchProduct();
 
-    return () => {
-      ignore = true;
-    };
-  }, [id]);
+  return () => {
+    ignore = true;
+  };
+}, [id]);
+
 
   if (isLoading) {
     return (
@@ -53,7 +62,7 @@ function ViewProduct() {
     );
   }
 
-  const images = product.images || []
+  const images = product.images || [];
 
   return (
     <div className="space-y-6 p-4 bg-[#F1F5F9] dark:bg-transparent">
@@ -62,14 +71,20 @@ function ViewProduct() {
           onClick={() => navigate(-1)}
           className="flex cursor-pointer items-center gap-2 text-slate-100 transition hover:text-white"
         >
-          <FontAwesomeIcon icon={faArrowLeft}/>
+          <FontAwesomeIcon icon={faArrowLeft} />
           <span>Back</span>
         </button>
+
         <div className="mt-5 flex items-center gap-4">
-          <FontAwesomeIcon icon={faEye}/>
-          <div>
-            <h2 className="text-2xl font-extrabold sm:text-3xl">{product.name}</h2>
-            <p className="text-sm mt-1 text-white/60">Product details overview</p>
+          <FontAwesomeIcon icon={faEye} className="text-xl" />
+
+          <div className="min-w-0">
+            <h2 className="break-words text-2xl font-extrabold sm:text-3xl">
+              {product.name}
+            </h2>
+            <p className="mt-1 text-sm text-white/60">
+              Product details overview
+            </p>
           </div>
         </div>
       </div>
@@ -81,34 +96,43 @@ function ViewProduct() {
               <img
                 src={images[selectedImage]?.url}
                 alt={product.name}
-                className="h-[420px] w-full object-cover"
+                className="h-[300px] w-full object-cover sm:h-[420px]"
               />
+            ) : (
+              <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-zinc-400 sm:h-[420px]">
+                No image available
+              </div>
             )}
           </div>
 
+          {/* Image Thumbnails */}
           <div className="flex flex-wrap gap-3">
             {images.map((image, index) => (
               <button
                 key={image.url || index}
                 onClick={() => setSelectedImage(index)}
+                aria-label={`View product image ${index + 1}`}
                 className={`h-20 w-28 cursor-pointer overflow-hidden rounded-xl border-2 shadow-md transition ${
                   selectedImage === index
-                    ? 'border-blue-500'
-                    : 'border-transparent opacity-70 hover:opacity-100'
+                    ? "border-blue-500"
+                    : "border-transparent opacity-70 hover:opacity-100"
                 }`}
               >
                 <img
                   src={image.url}
-                  alt={product.name}
+                  alt={`${product.name} ${index + 1}`}
                   className="h-full w-full object-cover"
                 />
               </button>
             ))}
           </div>
 
-          <div className="h-72 w-[700px] max-w-full overflow-hidden rounded-3xl">
-            <Swiper images={product.images} name={product.name} />
-          </div>
+          {/* Swiper */}
+          {images.length > 0 && (
+            <div className="h-72 w-full min-w-0 overflow-hidden rounded-3xl">
+              <Swiper images={product.images} name={product.name} />
+            </div>
+          )}
         </div>
 
         <div className="space-y-5">
@@ -118,6 +142,7 @@ function ViewProduct() {
             <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-400">{product.description}</p>
           </div>
 
+          {/* Product Stats */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
               <p className="text-sm uppercase text-slate-500">Price</p>
@@ -142,8 +167,9 @@ function ViewProduct() {
               <FontAwesomeIcon icon={faTag}/>
               Tags
             </div>
+
             <div className="mt-4 flex flex-wrap gap-2">
-              {product.tags?.length > 0 &&
+              {product.tags?.length > 0 ? (
                 product.tags.map((tag) => (
                   <span
                     key={tag}
@@ -151,7 +177,12 @@ function ViewProduct() {
                   >
                     #{tag}
                   </span>
-                ))}
+                ))
+              ) : (
+                <p className="text-sm text-slate-500 dark:text-zinc-400">
+                  No tags available.
+                </p>
+              )}
             </div>
           </div>
 
@@ -163,12 +194,14 @@ function ViewProduct() {
                 <path d="m3.3 7 8.7 5 8.7-5" />
                 <path d="M12 22V12" />
               </svg>
+
               Category Info
             </div>
-            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+
+            <p className="mt-2 break-words text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-zinc-400">
               {[product.category, product.subcategory, product.brand]
                 .filter(Boolean)
-                .join(' · ')}
+                .join(" · ") || "No category information"}
             </p>
           </div>
 
@@ -182,7 +215,7 @@ function ViewProduct() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default ViewProduct
+export default ViewProduct;

@@ -1,22 +1,29 @@
 
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
-
-const DEV_MODE = true;
 
 function ProtectedRoute() {
   const { user, loading, isAdmin } = useAuth();
-
-  if (DEV_MODE) {
-    return <Outlet />;
-  }
+  const location = useLocation();
 
   if (loading) {
-    return <div className="p-6">Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <p className="text-gray-600 dark:text-gray-300">
+          Checking authentication...
+        </p>
+      </div>
+    );
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location }}
+      />
+    );
   }
 
   if (!isAdmin) {
