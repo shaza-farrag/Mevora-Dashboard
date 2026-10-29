@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-// import React from 'react'
-
-function Users() {
-  return (
-    <div>Users</div>
-  )
-}
-
-export default Users
-=======
 import { useEffect, useState } from "react";
 import { Search, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
 import StatsCards from "../components/users/UserStatsCards";
@@ -112,4 +101,3 @@ export default function Users() {
     </div>
   );
 }
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267

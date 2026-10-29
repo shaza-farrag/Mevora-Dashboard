@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import axios from "axios";
 
 const Axios = axios.create({
@@ -18,16 +17,6 @@ Axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-=======
-
-import axios from "axios";
-
-const Axios = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
-});
-
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267
 Axios.interceptors.response.use(
   (response) => response,
   (error) => Promise.reject(error)

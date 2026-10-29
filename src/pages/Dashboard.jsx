@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState, useEffect, useCallback } from "react";
 import {
   ShoppingBag,
@@ -251,21 +250,3 @@ export default function Dashboard() {
     </div>
   );
 }
-=======
-
-function Dashboard() {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold">
-        Dashboard Page
-      </h1>
-
-      <p className="mt-2 text-gray-600">
-        Routing is working successfully!
-      </p>
-    </div>
-  );
-}
-
-export default Dashboard;
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267

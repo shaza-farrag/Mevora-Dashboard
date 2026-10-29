@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 import { useEffect, useMemo, useState } from "react";
 import { getProducts } from "@/api/productsApi";
 import Search from "@/components/Search";
@@ -77,14 +75,3 @@ function Products() {
 }
 
 export default Products;
-=======
-// import React from 'react'
-
-function Products() {
-  return (
-    <div>Products</div>
-  )
-}
-
-export default Products
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267

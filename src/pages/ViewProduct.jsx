@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { getProductById } from '@/api/productsApi'
 import Swiper from '@/components/Swiper'
 import { useEffect, useState } from 'react'
@@ -6,37 +5,54 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { faStar ,faEye, faTag, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
+
 function ViewProduct() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [product, setProduct] = useState({})
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
-
-  async function getProduct() {
-    try {
-      const data = await getProductById(id)
-      setProduct(data.product)
-      setSelectedImage(0)
-    } catch (err) {
-      console.log(err)
-    }finally {
-    setIsLoading(false)
-  }
-  }
+  const [product, setProduct] = useState({});
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getProduct()
-  }, [id])
+    let ignore = false;
+
+    async function fetchProduct() {
+      setIsLoading(true);
+
+      try {
+        const data = await getProductById(id);
+
+        if (!ignore) {
+          setProduct(data.product);
+          setSelectedImage(0);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error("Failed to fetch product:", err);
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchProduct();
+
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   if (isLoading) {
-  return (
-    <div className="flex h-64 items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-    </div>
-  )
-}
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+      </div>
+    );
+  }
+
   const images = product.images || []
 
   return (
@@ -166,13 +182,6 @@ function ViewProduct() {
         </div>
       </div>
     </div>
-=======
-// import React from 'react'
-
-function ViewProduct() {
-  return (
-    <div>ViewProduct</div>
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267
   )
 }
 

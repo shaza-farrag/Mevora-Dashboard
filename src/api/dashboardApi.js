@@ -1,20 +1,11 @@
-<<<<<<< HEAD
-import Axios from "./axios";
-
-/**
- * Fetch raw dashboard stats from the server
- */
-=======
 
 import Axios from "./axios";
 
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267
 export const getDashboardStats = async () => {
   const response = await Axios.get("/orders/admin/dashboard");
   return response.data;
 };
 
-<<<<<<< HEAD
 /**
  * Helper to generate last 7 days date strings in "Mon DD" or "YYYY-MM-DD"
  */
@@ -254,5 +245,3 @@ export const fetchComprehensiveDashboardData = async () => {
     revenueLast7Days,
   };
 };
-=======
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267
