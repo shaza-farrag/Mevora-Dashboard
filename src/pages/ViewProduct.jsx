@@ -5,42 +5,59 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { faStar ,faEye, faTag, faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
+
 function ViewProduct() {
-  const { id } = useParams()
-  const navigate = useNavigate()
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [product, setProduct] = useState({})
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
-
-  async function getProduct() {
-    try {
-      const data = await getProductById(id)
-      setProduct(data.product)
-      setSelectedImage(0)
-    } catch (err) {
-      console.log(err)
-    }finally {
-    setIsLoading(false)
-  }
-  }
+  const [product, setProduct] = useState({});
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getProduct()
-  }, [id])
+    let ignore = false;
+
+    async function fetchProduct() {
+      setIsLoading(true);
+
+      try {
+        const data = await getProductById(id);
+
+        if (!ignore) {
+          setProduct(data.product);
+          setSelectedImage(0);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error("Failed to fetch product:", err);
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchProduct();
+
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   if (isLoading) {
-  return (
-    <div className="flex h-64 items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
-    </div>
-  )
-}
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600 dark:border-slate-700 dark:border-t-blue-500" />
+      </div>
+    );
+  }
+
   const images = product.images || []
 
   return (
-    <div className="space-y-6 p-4 bg-[#F1F5F9]">
-      <div className="rounded-3xl bg-gradient-to-r from-slate-950 to-slate-800 px-6 py-6 text-white shadow-lg sm:px-8 sm:py-8">
+    <div className="space-y-6 p-4 bg-[#F1F5F9] dark:bg-transparent">
+      <div className="rounded-3xl bg-gradient-to-r from-slate-950 to-slate-800 px-6 py-6 text-white shadow-lg sm:px-8 sm:py-8 dark:border dark:border-slate-800">
         <button
           onClick={() => navigate(-1)}
           className="flex cursor-pointer items-center gap-2 text-slate-100 transition hover:text-white"
@@ -59,7 +76,7 @@ function ViewProduct() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]">
         <div className="space-y-4">
-          <div className="overflow-hidden rounded-3xl bg-slate-300 shadow-md">
+          <div className="overflow-hidden rounded-3xl bg-slate-300 shadow-md dark:bg-slate-800">
             {images.length > 0 && (
               <img
                 src={images[selectedImage]?.url}
@@ -95,33 +112,33 @@ function ViewProduct() {
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-3xl bg-white p-6 shadow ring-1 ring-slate-200">
-            <p className="text-sm font-medium uppercase tracking-wide text-blue-600">Overview</p>
-            <h3 className="mt-2 text-3xl font-extrabold">{product.name}</h3>
-            <p className="mt-3 leading-relaxed text-slate-600">{product.description}</p>
+          <div className="rounded-3xl bg-white p-6 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+            <p className="text-sm font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">Overview</p>
+            <h3 className="mt-2 text-3xl font-extrabold dark:text-white">{product.name}</h3>
+            <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-400">{product.description}</p>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200">
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
               <p className="text-sm uppercase text-slate-500">Price</p>
-              <p className="mt-2 text-xl font-bold">${product.price}</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">${product.price}</p>
             </div>
-            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200">
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
               <p className="text-sm uppercase text-slate-500">Discount</p>
-              <p className="mt-2 text-xl font-bold">${product.discountPrice}</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">${product.discountPrice}</p>
             </div>
-            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200">
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
               <p className="text-sm uppercase text-slate-500">Stock</p>
-              <p className="mt-2 text-xl font-bold">{product.stock}</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">{product.stock}</p>
             </div>
-            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200">
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
               <p className="text-sm uppercase text-slate-500">SKU</p>
-              <p className="mt-2 text-xl font-bold">{product.sku}</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">{product.sku}</p>
             </div>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow ring-1 ring-slate-200">
-            <div className="flex items-center gap-2 font-semibold">
+          <div className="rounded-3xl bg-white p-6 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+            <div className="flex items-center gap-2 font-semibold dark:text-white">
               <FontAwesomeIcon icon={faTag}/>
               Tags
             </div>
@@ -130,7 +147,7 @@ function ViewProduct() {
                 product.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-gray-100 px-3 py-1 text-xs"
+                    className="rounded-full bg-gray-100 px-3 py-1 text-xs dark:bg-slate-800 dark:text-slate-300"
                   >
                     #{tag}
                   </span>
@@ -138,8 +155,8 @@ function ViewProduct() {
             </div>
           </div>
 
-          <div className='p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl'>
-            <div className="flex items-center gap-2 font-semibold mb-3">
+          <div className='p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl dark:from-slate-900 dark:to-slate-900 dark:ring-1 dark:ring-slate-800'>
+            <div className="flex items-center gap-2 font-semibold mb-3 dark:text-white">
               <svg className="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="m7.5 4.27 9 5.15" />
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
@@ -155,12 +172,12 @@ function ViewProduct() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-amber-50 p-6 shadow">
-            <div className="flex items-center gap-2 font-semibold mb-2">
+          <div className="rounded-3xl bg-amber-50 p-6 shadow dark:bg-amber-500/10 dark:ring-1 dark:ring-amber-500/20">
+            <div className="flex items-center gap-2 font-semibold mb-2 dark:text-white">
               <FontAwesomeIcon icon={faStar} />
               Highlights
               </div>
-            <p className="mt-3 text-slate-700">{product.shortDescription}</p>
+            <p className="mt-3 text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
           </div>
         </div>
       </div>
