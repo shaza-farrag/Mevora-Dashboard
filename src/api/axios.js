@@ -4,6 +4,7 @@ import axios from "axios";
 const Axios = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://e-commerce-api-3wara.vercel.app",
   withCredentials: true,
+   timeout: 20000, 
 });
 
 // Request Interceptor — automatically attach JWT Token from localStorage if present

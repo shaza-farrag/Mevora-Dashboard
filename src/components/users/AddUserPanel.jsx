@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { UserPlus, X } from "lucide-react";
+import { UserPlus, X, Loader2 } from "lucide-react";
+import { getErrorMessage } from "./UserUtils";
 
 const emptyForm = { username: "", email: "", password: "", phone: "" };
 
@@ -9,28 +10,36 @@ const labelCls =
   "mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400";
 
 export default function AddUserPanel({ isOpen, onClose, onAddUser }) {
-  const [formData, setFormData] = useState(emptyForm);
+ const [submitting, setSubmitting] = useState(false);
+const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
   const setField = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.username.trim() || !formData.email.trim()) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (submitting) return;
+  if (!formData.username.trim() || !formData.email.trim()) return;
 
-    onAddUser({
-      id: Date.now(),
-      name: formData.username.trim(),
+  setSubmitting(true);
+  setError("");
+
+  try {
+    await onAddUser({
+      username: formData.username.trim(),
       email: formData.email.trim(),
-      phone: formData.phone.trim(),
-      role: "customer",
-      verified: false,
+      password: formData.password,
+      ...(formData.phone.trim() && { phone: formData.phone.trim() }),
     });
-
     setFormData(emptyForm);
     onClose();
-  };
+  } catch (err) {
+    setError(getErrorMessage(err));
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-cyan-900/50 dark:bg-slate-900">
@@ -75,7 +84,11 @@ export default function AddUserPanel({ isOpen, onClose, onAddUser }) {
             <input type="tel" placeholder="e.g. +1 234 567 890" value={formData.phone} onChange={setField("phone")} className={inputCls} />
           </div>
         </div>
-
+          {error && (
+          <p role="alert" className="mt-4 text-sm font-medium text-red-500">
+             {error}
+              </p> 
+                     )}
         <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-5 dark:border-slate-800">
           <p className="text-xs text-slate-500 dark:text-slate-400">
             <span className="text-red-500">*</span> Required fields
@@ -83,18 +96,20 @@ export default function AddUserPanel({ isOpen, onClose, onAddUser }) {
           <div className="flex gap-3">
             <button
               type="button"
+               disabled={submitting}
               onClick={() => setFormData(emptyForm)}
               className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               Clear
             </button>
             <button
-              type="submit"
-              className="flex items-center gap-2 rounded-xl bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-600"
-            >
-              <UserPlus size={16} />
-              Create User
-            </button>
+  type="submit"
+  disabled={submitting}
+  className="flex items-center gap-2 rounded-xl bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-70"
+>
+  {submitting ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+  {submitting ? "Creating..." : "Create User"}
+</button>
           </div>
         </div>
       </form>

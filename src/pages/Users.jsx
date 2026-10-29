@@ -1,50 +1,131 @@
-<<<<<<< HEAD
-// import React from 'react'
-
-function Users() {
-  return (
-    <div>Users</div>
-  )
-}
-
-export default Users
-=======
-import { useEffect, useState } from "react";
-import { Search, UserPlus, ChevronDown, ChevronUp } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Search, UserPlus, ChevronDown, ChevronUp, X } from "lucide-react";
 import StatsCards from "../components/users/UserStatsCards";
 import AddUserPanel from "../components/users/AddUserPanel";
 import UserTable from "../components/users/UserTable";
 import UsersLoading from "../components/users/UsersLoading";
-import { initialUsers } from "../data/mockUsers";
+import UsersError from "../components/users/UsersError";
+import {
+  extractUsers,
+  normalizeUser,
+  getErrorMessage,
+} from "../components/users/userUtils";
+import { getAllUsers, addUser, updateUser, deleteUser } from "../api/usersApi";
+import { changeUserRole } from "../api/authApi";
+
+const SLOW_AFTER_MS = 4000;
 
 export default function Users() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
 
-  // Fake loading delay. When you connect the real API, set loading to false after the fetch finishes.
+  const [loading, setLoading] = useState(true);
+  const [slow, setSlow] = useState(false);
+  const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const [busyIds, setBusyIds] = useState([]);
+  const [actionError, setActionError] = useState(null);
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
+    const controller = new AbortController();
+    const slowTimer = setTimeout(() => setSlow(true), SLOW_AFTER_MS);
+
+    (async () => {
+      try {
+        const data = await getAllUsers({}, { signal: controller.signal });
+        if (controller.signal.aborted) return;
+        setUsers(extractUsers(data).map(normalizeUser));
+        setError(null);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setError(getErrorMessage(err));
+      } finally {
+        clearTimeout(slowTimer);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+          setSlow(false);
+        }
+      }
+    })();
+
+    return () => {
+      controller.abort();
+      clearTimeout(slowTimer);
+    };
+  }, [reloadKey]);
+
+  const reload = useCallback(() => {
+    setError(null);
+    setSlow(false);
+    setLoading(true);
+    setReloadKey((k) => k + 1);
   }, []);
 
-  const handleAddUser = (newUser) => setUsers((prev) => [newUser, ...prev]);
+  useEffect(() => {
+    if (!error) return undefined;
+    window.addEventListener("online", reload);
+    return () => window.removeEventListener("online", reload);
+  }, [error, reload]);
 
-  const handleToggleRole = (id) =>
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id ? { ...u, role: u.role === "admin" ? "customer" : "admin" } : u
-      )
-    );
+  const refreshUsers = useCallback(async () => {
+    const data = await getAllUsers();
+    setUsers(extractUsers(data).map(normalizeUser));
+  }, []);
 
-  const handleToggleVerify = (id) =>
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, verified: !u.verified } : u)));
+  const runForUser = async (id, action) => {
+    setActionError(null);
+    setBusyIds((prev) => [...prev, id]);
+    try {
+      await action();
+    } catch (err) {
+      setActionError(getErrorMessage(err));
+    } finally {
+      setBusyIds((prev) => prev.filter((x) => x !== id));
+    }
+  };
+
+  const handleAddUser = async (payload) => {
+    await addUser(payload);
+    try {
+      await refreshUsers();
+    } catch {
+      // اليوزر اتضاف، والقائمة هتتحدث في أول تحميل جاي
+    }
+  };
+
+  const handleToggleRole = (id) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+    const role = user.role === "admin" ? "customer" : "admin";
+
+    runForUser(id, async () => {
+      // TODO: تأكد من شكل الـ body المطلوب في PATCH /auth/change-role
+      await changeUserRole({ userId: id, role });
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
+    });
+  };
+
+  const handleToggleVerify = (id) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+    const verified = !user.verified;
+
+    runForUser(id, async () => {
+      // TODO: تأكد من اسم الحقل في الباك إند (isVerified ولا verified)
+      await updateUser(id, { isVerified: verified });
+      setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, verified } : u)));
+    });
+  };
 
   const handleDeleteUser = (id) => {
-    if (window.confirm("Delete this user?")) {
+    if (!window.confirm("Delete this user?")) return;
+
+    runForUser(id, async () => {
+      await deleteUser(id);
       setUsers((prev) => prev.filter((u) => u.id !== id));
-    }
+    });
   };
 
   const term = searchTerm.trim().toLowerCase();
@@ -54,7 +135,8 @@ export default function Users() {
 
   const ToggleIcon = isAddPanelOpen ? ChevronUp : ChevronDown;
 
-  if (loading) return <UsersLoading />;
+  if (loading) return <UsersLoading slow={slow} />;
+  if (error) return <UsersError message={error} onRetry={reload} />;
 
   return (
     <div className="space-y-6">
@@ -95,6 +177,18 @@ export default function Users() {
         </div>
       </div>
 
+      {actionError && (
+        <div
+          role="alert"
+          className="flex items-center justify-between gap-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400"
+        >
+          <span>{actionError}</span>
+          <button onClick={() => setActionError(null)} aria-label="Dismiss">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       <AddUserPanel
         isOpen={isAddPanelOpen}
         onClose={() => setIsAddPanelOpen(false)}
@@ -105,6 +199,7 @@ export default function Users() {
 
       <UserTable
         users={filteredUsers}
+        busyIds={busyIds}
         onToggleRole={handleToggleRole}
         onToggleVerify={handleToggleVerify}
         onDeleteUser={handleDeleteUser}
@@ -112,4 +207,3 @@ export default function Users() {
     </div>
   );
 }
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267

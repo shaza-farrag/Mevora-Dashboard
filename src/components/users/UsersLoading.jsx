@@ -2,7 +2,7 @@ import smallLogo from "../../assets/Small Logo.png";
 
 const block = "animate-pulse rounded-xl bg-slate-200 dark:bg-slate-800";
 
-export default function UsersLoading() {
+export default function UsersLoading({ slow = false })  {
   return (
     <div className="space-y-6" role="status" aria-live="polite">
       {/* Logo + text */}
@@ -12,7 +12,11 @@ export default function UsersLoading() {
           <img src={smallLogo} alt="Koda" className="h-12 w-12 rounded-md object-contain" />
         </div>
         <h2 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">Koda Dashboard</h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Loading users...</p>
+       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  {slow
+    ? "Slow connection detected, still loading. Hang tight..."
+    : "Loading users..."}
+</p>
       </div>
 
       {/* Header skeleton */}
