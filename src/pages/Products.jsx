@@ -1,79 +1,78 @@
-import { getProducts } from "@/api/productsApi"
-import { useEffect, useState } from "react"
-import Search from "@/components/Search"
-import ProductsHeader from "@/components/ProductsHeader"
-import ProductsList from "@/components/ProductsList"
 
+import { useEffect, useMemo, useState } from "react";
+import { getProducts } from "@/api/productsApi";
+import Search from "@/components/Search";
+import ProductsHeader from "@/components/ProductsHeader";
+import ProductsList from "@/components/ProductsList";
+import ProductsSkeleton from "@/components/ProductsSkeleton";
 
 function Products() {
-  const [products, setProducts] = useState([])
-
-
-const [stats, setStats] = useState({
-  total: 0,
-  featured: 0,
-  inStock: 0,
-  outOfStock: 0,
-});
-const [isLoading, setIsLoading] = useState(true)
-
-async function getAllProduct() {
-  try {
-    setIsLoading(true)
-    const data = await getProducts()
-    setProducts(data.products)
-  } catch (err) {
-    console.log(err)
-  } finally {
-    setIsLoading(false)
-  }
-}
-  useEffect(()=>{
-    getAllProduct()
-  },[])
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-  let featuredCount = 0;
-  let inStockCount = 0;
-  let outOfStockCount = 0;
+    let ignore = false;
 
-  products.map((product) => {
-    if (product.featured) {
-      featuredCount++;
+    async function fetchProducts() {
+      try {
+        const data = await getProducts();
+
+        if (!ignore) {
+          setProducts(data.products);
+        }
+      } catch (err) {
+        if (!ignore) {
+          console.error(err);
+        }
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
     }
 
-    if (product.stock === 0) {
-      outOfStockCount++;
-    } else {
-      inStockCount++;
-    }
-  });
+    fetchProducts();
 
-  setStats({
-    total: products.length,
-    featured: featuredCount,
-    inStock: inStockCount,
-    outOfStock: outOfStockCount,
-  });
-}, [products]);
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
-if (isLoading) {
+  const stats = useMemo(() => {
+    const featured = products.filter(
+      (product) => product.featured
+    ).length;
+
+    const outOfStock = products.filter(
+      (product) => product.stock === 0
+    ).length;
+
+    return {
+      total: products.length,
+      featured,
+      inStock: products.length - outOfStock,
+      outOfStock,
+    };
+  }, [products]);
+
+  if (isLoading) {
+    return <ProductsSkeleton />;
+  }
+
   return (
-    <div className="flex h-64 items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+    <div className="space-y-6">
+      <ProductsHeader
+        total={stats.total}
+        featured={stats.featured}
+        inStock={stats.inStock}
+        outOfStock={stats.outOfStock}
+      />
+
+      <Search setProducts={setProducts} />
+
+      <ProductsList products={products} />
     </div>
-  )
-}
-  return (
-    <div>
-      <ProductsHeader total={stats.total}
-    featured={stats.featured}
-    inStock={stats.inStock}
-    outOfStock={stats.outOfStock}/>
-      <Search setProducts={setProducts}/>
-      <ProductsList products={products}/>
-</div>
-  )
+  );
 }
 
-export default Products
+export default Products;
