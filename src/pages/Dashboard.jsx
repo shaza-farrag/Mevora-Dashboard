@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+
+import { useState, useEffect } from "react";
 import {
   ShoppingBag,
   Clock,
@@ -20,98 +21,114 @@ import RecentOrdersTable from "../components/dashboard/RecentOrdersTable";
 import DashboardSkeleton from "../components/dashboard/DashboardSkeleton";
 
 export default function Dashboard() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
+const [data, setData] = useState(null);
+const [loading, setLoading] = useState(true);
+const [refreshing, setRefreshing] = useState(false);
+const [error, setError] = useState(null);
 
-  // Load Dashboard Data
-  const loadDashboardData = useCallback(async (isManualRefresh = false) => {
+async function loadDashboardData(isManualRefresh = false) {
+  if (isManualRefresh) {
+    setRefreshing(true);
+  }
+
+  setError(null);
+
+  try {
+    const stats = await fetchComprehensiveDashboardData();
+
+    setData(stats);
+
     if (isManualRefresh) {
-      setRefreshing(true);
+      toast.success("Dashboard data updated successfully!");
     }
-    setError(null);
+  } catch (err) {
+    console.error("Dashboard data fetching error:", err);
 
+    const errMsg =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to load dashboard data. Please try again.";
+
+    setError(errMsg);
+
+    if (isManualRefresh) {
+      toast.error(errMsg);
+    }
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+}
+
+useEffect(() => {
+  let cancelled = false;
+
+  async function fetchInitialData() {
     try {
       const stats = await fetchComprehensiveDashboardData();
-      setData(stats);
 
-      if (isManualRefresh) {
-        toast.success("Dashboard data updated successfully!");
+      if (!cancelled) {
+        setData(stats);
       }
     } catch (err) {
-      console.error("Dashboard data fetching error:", err);
-      const errMsg =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to load dashboard data. Please try again.";
-      setError(errMsg);
-      toast.error(errMsg);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+      if (!cancelled) {
+        console.error("Dashboard data fetching error:", err);
 
-  useEffect(() => {
-    let isCancelled = false;
-
-    const initFetch = async () => {
-      try {
-        const stats = await fetchComprehensiveDashboardData();
-        if (!isCancelled) {
-          setData(stats);
-        }
-      } catch (err) {
-        if (!isCancelled) {
-          const errMsg =
-            err?.response?.data?.message ||
+        setError(
+          err?.response?.data?.message ||
             err?.message ||
-            "Failed to load dashboard data. Please try again.";
-          setError(errMsg);
-        }
-      } finally {
-        if (!isCancelled) {
-          setLoading(false);
-        }
+            "Failed to load dashboard data. Please try again."
+        );
       }
-    };
+    } finally {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    }
+  }
 
-    initFetch();
+  fetchInitialData();
 
-    return () => {
-      isCancelled = true;
-    };
-  }, []);
+  return () => {
+    cancelled = true;
+  };
+}, []);
 
-  // Initial Loading state with Skeleton
+
+  // Initial loading
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="w-full min-w-0 px-4 py-6 sm:px-6 lg:px-8">
         <DashboardSkeleton />
       </div>
     );
   }
 
-  // Error Banner State
+  // Error state when no data is available
   if (error && !data) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-2xl p-8 text-center max-w-lg mx-auto shadow-sm">
-          <div className="w-14 h-14 bg-red-100 dark:bg-red-900/60 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600 dark:text-red-400">
-            <AlertCircle className="w-7 h-7" />
+      <div className="w-full min-w-0 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50 p-8 text-center shadow-sm dark:border-red-900 dark:bg-red-950/40">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-900/60 dark:text-red-400">
+            <AlertCircle className="h-7 w-7" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+
+          <h2 className="mb-2 text-xl font-bold text-zinc-900 dark:text-zinc-100">
             Unable to load dashboard
           </h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
+
+          <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
             {error}
           </p>
+
           <button
             onClick={() => loadDashboardData(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-sm hover:opacity-90 transition-opacity"
+            disabled={refreshing}
+            className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw
+              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
             Retry Connection
           </button>
         </div>
@@ -120,38 +137,36 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 transition-all duration-300">
-      {/* 1. Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800">
+    <div className="w-full min-w-0 space-y-6 px-4 py-6 text-zinc-900 transition-colors duration-300 dark:text-zinc-100 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 border-b border-zinc-200/80 pb-4 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-zinc-100 tracking-tight">
+          <h1 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-3xl">
             Dashboard Overview
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 sm:text-sm">
             Real-time business performance, sales metrics, and store activity.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => loadDashboardData(true)}
-            disabled={refreshing}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/60 shadow-sm transition-all duration-200 disabled:opacity-50 cursor-pointer"
-            title="Refresh dashboard stats"
-          >
-            <RefreshCw
-              className={`w-4 h-4 text-zinc-500 dark:text-zinc-400 ${
-                refreshing ? "animate-spin text-blue-500" : ""
-              }`}
-            />
-            <span>{refreshing ? "Refreshing..." : "Refresh Data"}</span>
-          </button>
-        </div>
+        <button
+          onClick={() => loadDashboardData(true)}
+          disabled={refreshing}
+          title="Refresh dashboard stats"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-xs font-medium text-zinc-700 shadow-sm transition-all duration-200 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700/60 sm:text-sm"
+        >
+          <RefreshCw
+            className={`h-4 w-4 text-zinc-500 dark:text-zinc-400 ${
+              refreshing ? "animate-spin text-blue-500" : ""
+            }`}
+          />
+          <span>{refreshing ? "Refreshing..." : "Refresh Data"}</span>
+        </button>
       </div>
 
-      {/* 2. Statistics Cards Grid (6 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {/* Total Orders */}
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
           title="Total Orders"
           value={data?.totalOrders?.toLocaleString() ?? 0}
@@ -161,7 +176,6 @@ export default function Dashboard() {
           trend={{ label: "Active pipeline", isPositive: true }}
         />
 
-        {/* Pending Orders */}
         <StatCard
           title="Pending Orders"
           value={data?.pendingOrders?.toLocaleString() ?? 0}
@@ -171,11 +185,13 @@ export default function Dashboard() {
           trend={{
             label: data?.pendingOrders > 0 ? "Requires action" : "All cleared",
             isPositive: data?.pendingOrders === 0,
-            value: data?.pendingOrders > 0 ? `${data.pendingOrders} pending` : "Clean",
+            value:
+              data?.pendingOrders > 0
+                ? `${data.pendingOrders} pending`
+                : "Clean",
           }}
         />
 
-        {/* Total Revenue */}
         <StatCard
           title="Total Revenue"
           value={`$${Number(data?.totalRevenue || 0).toLocaleString(undefined, {
@@ -188,20 +204,21 @@ export default function Dashboard() {
           trend={{ label: "All-time revenue", isPositive: true }}
         />
 
-        {/* This Month */}
         <StatCard
           title="This Month"
-          value={`$${Number(data?.thisMonthRevenue || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}`}
+          value={`$${Number(data?.thisMonthRevenue || 0).toLocaleString(
+            undefined,
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}`}
           subtitle="Current calendar month"
           icon={Calendar}
           colorScheme="purple"
           trend={{ label: "Current cycle", isPositive: true }}
         />
 
-        {/* Top Product */}
         <StatCard
           title="Top Product"
           value={data?.topProduct || "N/A"}
@@ -211,7 +228,6 @@ export default function Dashboard() {
           trend={{ label: "Best Seller", isPositive: true }}
         />
 
-        {/* Total Users */}
         <StatCard
           title="Total Users"
           value={data?.totalUsers?.toLocaleString() ?? 0}
@@ -222,31 +238,48 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* 3. Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Revenue Last 7 Days (Line / Area Chart) */}
-        <div className="lg:col-span-2">
+      {/* Charts */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="min-w-0 lg:col-span-2">
           <RevenueChart data={data?.revenueLast7Days || []} />
         </div>
 
-        {/* Orders Status Distribution (Donut Chart) */}
-        <div className="lg:col-span-1">
+        <div className="min-w-0 lg:col-span-1">
           <OrderStatusChart data={data?.ordersByStatus || []} />
         </div>
       </div>
 
-      {/* 4. Lists & Tables Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Products Table */}
-        <div>
+      {/* Tables */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="min-w-0">
           <TopProductsTable products={data?.topProducts || []} />
         </div>
 
-        {/* Recent Orders Table */}
-        <div>
+        <div className="min-w-0">
           <RecentOrdersTable orders={data?.recentOrders || []} />
         </div>
       </div>
+
+      {/* Non-blocking refresh error */}
+      {error && data && (
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p>{error} Showing the previously loaded data.</p>
+
+          <button
+            onClick={() => loadDashboardData(true)}
+            disabled={refreshing}
+            className="inline-flex shrink-0 items-center gap-2 self-start font-semibold hover:underline disabled:opacity-50 sm:self-auto"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            Try again
+          </button>
+        </div>
+      )}
     </div>
   );
 }
