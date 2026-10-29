@@ -1,5 +1,6 @@
 import { faArrowTrendUp, faBox, faCubes, faPlus, faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 
 export default function ProductsHeader({total,
     featured,
@@ -22,10 +23,10 @@ export default function ProductsHeader({total,
           </div>
         </div>
 
-        <button className="flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-cyan-200 transition hover:bg-cyan-600">
+        <Link to="/products/add" className="flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-cyan-200 transition hover:bg-cyan-600">
           <FontAwesomeIcon icon={faPlus}/>
           Add Product
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
