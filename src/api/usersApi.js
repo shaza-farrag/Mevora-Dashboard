@@ -1,8 +1,8 @@
 
 import Axios from "./axios";
 
-export const getAllUsers = async (params = {}) => {
-  const response = await Axios.get("/users/all", { params });
+export const getAllUsers = async (params = {}, config = {}) => {
+  const response = await Axios.get("/users/all", { params, ...config });
   return response.data;
 };
 

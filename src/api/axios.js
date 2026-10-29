@@ -5,6 +5,7 @@ const Axios = axios.create({
   import.meta.env.VITE_API_URL ||
   "https://e-commerce-api-3wara.vercel.app",
   withCredentials: true,
+   timeout: 20000, 
 });
 
 Axios.interceptors.request.use(
