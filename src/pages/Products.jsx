@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 import { useEffect, useMemo, useState } from "react";
 import { getProducts } from "@/api/productsApi";
@@ -23,7 +22,7 @@ function Products() {
         }
       } catch (err) {
         if (!ignore) {
-          console.error(err);
+          console.error("Failed to fetch products:", err);
         }
       } finally {
         if (!ignore) {
@@ -57,11 +56,15 @@ function Products() {
   }, [products]);
 
   if (isLoading) {
-    return <ProductsSkeleton />;
+    return (
+      <div className="w-full min-w-0">
+        <ProductsSkeleton />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full min-w-0 space-y-6 p-4 text-slate-900 transition-colors duration-300 dark:text-zinc-100 sm:p-6">
       <ProductsHeader
         total={stats.total}
         featured={stats.featured}
@@ -77,14 +80,3 @@ function Products() {
 }
 
 export default Products;
-=======
-// import React from 'react'
-
-function Products() {
-  return (
-    <div>Products</div>
-  )
-}
-
-export default Products
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267

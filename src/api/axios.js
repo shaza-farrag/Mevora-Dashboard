@@ -1,13 +1,13 @@
-<<<<<<< HEAD
 import axios from "axios";
 
 const Axios = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://e-commerce-api-3wara.vercel.app",
+ baseURL:
+  import.meta.env.VITE_API_URL ||
+  "https://e-commerce-api-3wara.vercel.app",
   withCredentials: true,
    timeout: 20000, 
 });
 
-// Request Interceptor — automatically attach JWT Token from localStorage if present
 Axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token") || localStorage.getItem("accessToken");
@@ -19,16 +19,6 @@ Axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-=======
-
-import axios from "axios";
-
-const Axios = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true,
-});
-
->>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267
 Axios.interceptors.response.use(
   (response) => response,
   (error) => Promise.reject(error)
