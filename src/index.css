@@ -144,3 +144,31 @@
   --color-fourth: #22D3EE;
   --color-fifth: #020617;
 }
+
+.swiper-button-prev,
+.swiper-button-next {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #273242;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0 !important;
+  transition: opacity 0.2s ease;
+}
+.swiper-button-prev{
+  margin-left: 20px !important;
+}
+.swiper-button-next{
+  margin-right: 20px !important;
+}
+.swiper-button-prev svg,
+.swiper-button-next svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.group:hover .swiper-button-prev,
+.group:hover .swiper-button-next {
+  opacity: 1 !important;
+}
