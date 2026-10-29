@@ -56,30 +56,8 @@ useEffect(() => {
 
   if (isLoading) {
     return (
-      <div className="w-full min-w-0">
-        <ViewProductSkeleton />
-      </div>
-    );
-  }
-
-  if (error || !product?._id) {
-    return (
-      <div className="flex min-h-64 w-full flex-col items-center justify-center gap-4 bg-slate-50 p-6 text-center text-slate-800 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-100">
-        <h2 className="text-xl font-bold">
-          {error ? "Failed to load product" : "Product not found"}
-        </h2>
-
-        <p className="text-sm text-slate-500 dark:text-zinc-400">
-          Please try again or return to the previous page.
-        </p>
-
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} />
-          Go Back
-        </button>
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600 dark:border-slate-700 dark:border-t-blue-500" />
       </div>
     );
   }
@@ -87,9 +65,8 @@ useEffect(() => {
   const images = product.images || [];
 
   return (
-    <div className="w-full min-w-0 space-y-6 p-4 text-slate-900 transition-colors duration-300 dark:text-zinc-100 sm:p-6">
-      {/* Header */}
-      <div className="rounded-3xl bg-gradient-to-r from-slate-950 to-slate-800 px-6 py-6 text-white shadow-lg sm:px-8 sm:py-8">
+    <div className="space-y-6 p-4 bg-[#F1F5F9] dark:bg-transparent">
+      <div className="rounded-3xl bg-gradient-to-r from-slate-950 to-slate-800 px-6 py-6 text-white shadow-lg sm:px-8 sm:py-8 dark:border dark:border-slate-800">
         <button
           onClick={() => navigate(-1)}
           className="flex cursor-pointer items-center gap-2 text-slate-100 transition hover:text-white"
@@ -112,12 +89,10 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]">
-        {/* Images Section */}
-        <div className="min-w-0 space-y-4">
-          <div className="overflow-hidden rounded-3xl bg-slate-200 shadow-md dark:bg-zinc-800">
-            {images.length > 0 ? (
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]">
+        <div className="space-y-4">
+          <div className="overflow-hidden rounded-3xl bg-slate-300 shadow-md dark:bg-slate-800">
+            {images.length > 0 && (
               <img
                 src={images[selectedImage]?.url}
                 alt={product.name}
@@ -160,71 +135,36 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Product Information */}
-        <div className="min-w-0 space-y-5">
-          {/* Overview */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-sm font-medium uppercase tracking-wide text-blue-600 dark:text-cyan-400">
-              Overview
-            </p>
-
-            <h3 className="mt-2 break-words text-3xl font-extrabold">
-              {product.name}
-            </h3>
-
-            <p className="mt-3 leading-relaxed text-slate-600 dark:text-zinc-400">
-              {product.description || "No description available."}
-            </p>
+        <div className="space-y-5">
+          <div className="rounded-3xl bg-white p-6 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+            <p className="text-sm font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">Overview</p>
+            <h3 className="mt-2 text-3xl font-extrabold dark:text-white">{product.name}</h3>
+            <p className="mt-3 leading-relaxed text-slate-600 dark:text-slate-400">{product.description}</p>
           </div>
 
           {/* Product Stats */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-sm uppercase text-slate-500 dark:text-zinc-400">
-                Price
-              </p>
-              <p className="mt-2 text-xl font-bold">
-                ${product.price ?? "N/A"}
-              </p>
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+              <p className="text-sm uppercase text-slate-500">Price</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">${product.price}</p>
             </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-sm uppercase text-slate-500 dark:text-zinc-400">
-                Discount
-              </p>
-              <p className="mt-2 text-xl font-bold">
-                {product.discountPrice != null
-                  ? `$${product.discountPrice}`
-                  : "N/A"}
-              </p>
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+              <p className="text-sm uppercase text-slate-500">Discount</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">${product.discountPrice}</p>
             </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-sm uppercase text-slate-500 dark:text-zinc-400">
-                Stock
-              </p>
-              <p className="mt-2 text-xl font-bold">
-                {product.stock ?? "N/A"}
-              </p>
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+              <p className="text-sm uppercase text-slate-500">Stock</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">{product.stock}</p>
             </div>
-
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-sm uppercase text-slate-500 dark:text-zinc-400">
-                SKU
-              </p>
-              <p className="mt-2 break-words text-xl font-bold">
-                {product.sku || "N/A"}
-              </p>
+            <div className="rounded-2xl bg-white p-5 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+              <p className="text-sm uppercase text-slate-500">SKU</p>
+              <p className="mt-2 text-xl font-bold dark:text-white">{product.sku}</p>
             </div>
           </div>
 
-          {/* Tags */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors duration-300 dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-center gap-2 font-semibold">
-              <FontAwesomeIcon
-                icon={faTag}
-                className="text-blue-600 dark:text-cyan-400"
-              />
+          <div className="rounded-3xl bg-white p-6 shadow ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+            <div className="flex items-center gap-2 font-semibold dark:text-white">
+              <FontAwesomeIcon icon={faTag}/>
               Tags
             </div>
 
@@ -233,7 +173,7 @@ useEffect(() => {
                 product.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700 dark:bg-zinc-800 dark:text-zinc-300"
+                    className="rounded-full bg-gray-100 px-3 py-1 text-xs dark:bg-slate-800 dark:text-slate-300"
                   >
                     #{tag}
                   </span>
@@ -246,18 +186,9 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Category Info */}
-          <div className="rounded-3xl bg-gradient-to-r from-blue-50 to-purple-50 p-5 transition-colors duration-300 dark:from-zinc-900 dark:to-slate-900">
-            <div className="mb-3 flex items-center gap-2 font-semibold">
-              <svg
-                className="h-5 w-5 text-slate-500 dark:text-zinc-400"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                viewBox="0 0 24 24"
-              >
+          <div className='p-5 bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl dark:from-slate-900 dark:to-slate-900 dark:ring-1 dark:ring-slate-800'>
+            <div className="flex items-center gap-2 font-semibold mb-3 dark:text-white">
+              <svg className="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="m7.5 4.27 9 5.15" />
                 <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
                 <path d="m3.3 7 8.7 5 8.7-5" />
@@ -274,19 +205,12 @@ useEffect(() => {
             </p>
           </div>
 
-          {/* Highlights */}
-          <div className="rounded-3xl bg-amber-50 p-6 text-slate-900 shadow-sm transition-colors duration-300 dark:bg-amber-950/30 dark:text-zinc-100">
-            <div className="mb-2 flex items-center gap-2 font-semibold">
-              <FontAwesomeIcon
-                icon={faStar}
-                className="text-amber-500"
-              />
+          <div className="rounded-3xl bg-amber-50 p-6 shadow dark:bg-amber-500/10 dark:ring-1 dark:ring-amber-500/20">
+            <div className="flex items-center gap-2 font-semibold mb-2 dark:text-white">
+              <FontAwesomeIcon icon={faStar} />
               Highlights
-            </div>
-
-            <p className="mt-3 text-slate-700 dark:text-zinc-300">
-              {product.shortDescription || "No highlights available."}
-            </p>
+              </div>
+            <p className="mt-3 text-slate-700 dark:text-slate-300">{product.shortDescription}</p>
           </div>
         </div>
       </div>
