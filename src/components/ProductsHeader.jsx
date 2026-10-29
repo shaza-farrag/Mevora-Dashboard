@@ -65,41 +65,31 @@ export default function ProductsHeader({
           Add Product
         </Link>
       </div>
-
+      
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 text-xl text-cyan-600 dark:bg-slate-800 dark:text-slate-300">
-            <FontAwesomeIcon icon={faBox}/>
-          </div>
-          <p className="mt-6 text-2xl font-extrabold text-slate-800 dark:text-white">{total}</p>
-          <p className="mt-1 text-slate-500 text-sm dark:text-slate-500">Total</p>
-        </div>
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-sm transition-colors duration-300 dark:border-slate-800 dark:bg-slate-900"
+          >
+            <div
+              className={`flex h-12 w-12 items-center justify-center rounded-xl text-xl ${stat.iconClass}`}
+            >
+              <FontAwesomeIcon icon={stat.icon} />
+            </div>
 
-        <div className="rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-xl text-amber-600 dark:bg-slate-800 dark:text-slate-300">
-            <FontAwesomeIcon icon={faStar}/>
-          </div>
-          <p className="mt-6 text-2xl font-extrabold text-slate-800 dark:text-white">{featured}</p>
-          <p className="mt-1 text-slate-500 text-sm dark:text-slate-500">Featured</p>
-        </div>
+            <p className="mt-6 text-2xl font-extrabold text-slate-800 dark:text-white">
+              {stat.value}
+            </p>
 
-        <div className="rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-xl text-emerald-600 dark:bg-slate-800 dark:text-slate-300">
-            <FontAwesomeIcon icon={faArrowTrendUp}/>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {stat.label}
+            </p>
           </div>
-          <p className="mt-6 text-2xl font-extrabold text-slate-800 dark:text-white">{inStock}</p>
-          <p className="mt-1 text-slate-500 text-sm dark:text-slate-500">In Stock</p>
-        </div>
-
-        <div className="rounded-3xl border border-slate-100 bg-white/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-xl text-rose-600 dark:bg-slate-800 dark:text-slate-300">
-            <FontAwesomeIcon icon={faCubes}/>
-          </div>
-          <p className="mt-6 text-2xl font-extrabold text-slate-800 dark:text-white">{outOfStock}</p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-500">Out of Stock</p>
-        </div>
+        ))}
       </div>
+
     </div>
   );
 }
