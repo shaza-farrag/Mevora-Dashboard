@@ -143,6 +143,7 @@
   --color-third: #1F2937;
   --color-fourth: #22D3EE;
   --color-fifth: #020617;
+<<<<<<< HEAD
 }
 
 .swiper-button-prev,
@@ -172,3 +173,6 @@
 .group:hover .swiper-button-next {
   opacity: 1 !important;
 }
+=======
+}
+>>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267

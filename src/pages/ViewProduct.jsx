@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { getProductById } from '@/api/productsApi'
 import Swiper from '@/components/Swiper'
 import { useEffect, useState } from 'react'
@@ -165,6 +166,13 @@ function ViewProduct() {
         </div>
       </div>
     </div>
+=======
+// import React from 'react'
+
+function ViewProduct() {
+  return (
+    <div>ViewProduct</div>
+>>>>>>> bec28bfeec5abafaedd5d6bb2070e2d780565267
   )
 }
 
